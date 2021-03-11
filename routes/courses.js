@@ -1,92 +1,23 @@
-const { json } = require("body-parser");
 const express = require("express");
-const path = require("path");
 const router = express.Router();
-const Courses = require("../model/Courses");
+const Courses = require("../Model/coursesModel");
+const courseController = require("../Controllers/courseController");
 
-//Render a static html file
-// app.use(express.static(path.join(__dirname, "public")));
+//controller setup
+const controller = courseController(Courses);
 
-//Render a html file
-router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
+//Routes
+router.get("/", controller.getHome);
 
-// router.get("/courses", (req, res) => {
-//   res.send("hello world");
-// });
+router.get("/courses", controller.getCourses);
 
-//get an array of datas
-router.get("/courses", async (req, res) => {
-  try {
-    const course = await Courses.find();
-    res.send(course);
-  } catch (err) {
-    res.json(err);
-  }
-});
+router.get("/courses/:id", controller.getCourseById);
 
-//get a specific course using id
-router.get("/courses/:id", async (req, res) => {
-  try {
-    const course = await Courses.findById(req.params.id);
-    res.send(course);
-  } catch {
-    res.status(400).send("The course with given ID wasn't found");
-  }
-});
+router.post("/courses", controller.postCourse);
 
-//add a course data using Post request
-router.post("/courses", async (req, res) => {
-  const course = new Courses({
-    title: req.body.title,
-    name: req.body.name,
-  });
+router.patch("/courses/:id", controller.patchCourse);
 
-  try {
-    const savedCourse = await course.save();
-    res.send(savedCourse);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-});
-
-// Update a existing course using put request
-router.patch("/courses/:id", async (req, res) => {
-  try {
-    const updatedCourse = await Courses.findOneAndUpdate(
-      {
-        _id: req.params.id,
-      },
-      {
-        $set: {
-          title: req.body.title,
-          name: req.body.name,
-        },
-      },
-      {
-        useFindAndModify: false,
-        new: true,
-      }
-    );
-    res.json(updatedCourse);
-  } catch (err) {
-    res.json(err);
-  }
-  //   res.send(course);
-});
-
-//Delete a specific course data using delete request
-router.delete("/courses/:id", async (req, res) => {
-  try {
-    const removedCourse = await Courses.deleteOne({
-      _id: req.params.id,
-    });
-    res.json(removedCourse);
-  } catch (err) {
-    res.status(400).send("The course with given ID wasn't found");
-  }
-});
+router.delete("/courses/:id", controller.deleteCourse);
 
 module.exports = router;
 
@@ -107,3 +38,6 @@ module.exports = router;
 //   .listen(1010, () => console.log("The app is running on port 1010"));
 
 // // console.log(os.type());
+
+//Render a static html file
+// app.use(express.static(path.join(__dirname, "public")));
