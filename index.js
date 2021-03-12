@@ -5,10 +5,12 @@ require("dotenv/config");
 
 //Import Routes
 const courseRoutes = require("./routes/courses");
+const authRoutes = require("./routes/authRoutes");
 
 //Middlewares
 app.use(express.json());
 app.use("/", courseRoutes);
+app.use("/", authRoutes);
 
 //Connect to DB
 mongoose.connect(
